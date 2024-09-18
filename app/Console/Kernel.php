@@ -20,59 +20,42 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
 
         $schedule->call(function () {
+
             $today = Carbon::now();
             $users = Community::all();
-        
+
             foreach ($users as $user) {
                 // Calculate the reminder date based on the user's settings
                 $reminderDate = $user->date;
                 $reminderFrequency = $user->type;
-        
+
                 // Check if the reminder date is valid
-                if ($reminderFrequency === 'monthly') 
-                {
-
-                    if ($reminderDate->isPast())
-                    {
-
-                        // Monthly reminders
-                        $nextReminderDate = $reminderDate->addMonth();
-
-                    }
-                    else
-                    {
-                        $nextReminderDate = $reminderDate;
-                       
-                    }
-
-
-                } 
-                elseif ($reminderFrequency === 'yearly') 
-                
-                {
+                if ($reminderFrequency === 'monthly') {
 
                     if ($reminderDate->isPast()) {
 
-                          // Yearly reminders
-                          $nextReminderDate = $today->copy()->addYear();
-
-                    }
-                    else
-                    {
+                        // Monthly reminders
+                        $nextReminderDate = $reminderDate->addMonth();
+                    } else {
                         $nextReminderDate = $reminderDate;
-                       
                     }
+                } elseif ($reminderFrequency === 'yearly') {
 
+                    if ($reminderDate->isPast()) {
 
+                        // Yearly reminders
+                        $nextReminderDate = $today->copy()->addYear();
+                    } else {
+                        $nextReminderDate = $reminderDate;
+                    }
                 }
 
                 if ($nextReminderDate->format('Y-m-d') == Carbon::now()->addDays(3)->toDateString()) {
-                           
-                    Mail::to($user->email)->send(new RemindMail($user->id,$user->first_name, $user->last_name, $nextReminderDate));
+
+                    Mail::to($user->email)->send(new RemindMail($user->id, $user->first_name, $user->last_name, $nextReminderDate));
                 }
             }
-        })->daily();
-
+        })->everySecond();
     }
 
     /**
@@ -80,7 +63,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

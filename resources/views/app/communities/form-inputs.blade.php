@@ -32,6 +32,16 @@
     </x-inputs.group>
 
     <x-inputs.group class="w-full">
+        <x-inputs.text
+            name="phone_number"
+            label="Phone Number"
+            :value="old('phone_number', ($editing ? $community->phone_number : ''))"
+            placeholder="Please enter with country code (+94766101085)"
+            required
+        ></x-inputs.text>
+    </x-inputs.group>
+
+    <x-inputs.group class="w-full">
         <x-inputs.textarea name="address" label="Address" required
             >{{ old('address', ($editing ? $community->address : ''))
             }}</x-inputs.textarea

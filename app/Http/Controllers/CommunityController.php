@@ -22,9 +22,11 @@ class CommunityController extends Controller
         $search = $request->get('search', '');
 
         $communities = Community::search($search)
-            ->orderBy('date', 'desc')
-            ->paginate(10)
-            ->withQueryString();
+        ->where('date', '>=', now())  // Only include future or current reminders
+        ->orderBy('date', 'asc')  // Order by the reminder date (soonest first)
+        ->paginate(10)
+        ->withQueryString();
+
 
         return view('app.communities.index', compact('communities', 'search'));
     }

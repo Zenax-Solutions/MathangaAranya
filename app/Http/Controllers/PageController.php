@@ -160,7 +160,7 @@ class PageController extends Controller
 
         if($user->date <= Carbon::now())
         {
-             Community::find($this->id)->update([
+             $user->update([
                 'date' => $date,
             ]);
 

@@ -39,7 +39,7 @@ class ContributionFormPayment extends Component
             }
             else
             {
-                $this->alert('success', 'You have not missed the deadline for this contribution!', [
+                $this->alert('info', 'You have not missed the deadline for this contribution!', [
                     'position' => 'center'
                 ]);
             }

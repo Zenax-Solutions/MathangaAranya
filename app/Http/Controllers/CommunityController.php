@@ -22,8 +22,7 @@ class CommunityController extends Controller
         $search = $request->get('search', '');
 
         $communities = Community::search($search)
-        ->where('date', '>=', now())  // Only include future or current reminders
-        ->orderBy('date', 'asc')  // Order by the reminder date (soonest first)
+        ->orderByRaw("(CASE WHEN date >= CURDATE() THEN 0 ELSE 1 END), date ASC") 
         ->paginate(10)
         ->withQueryString();
 

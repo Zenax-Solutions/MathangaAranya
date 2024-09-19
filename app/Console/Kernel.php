@@ -55,7 +55,7 @@ class Kernel extends ConsoleKernel
                     Mail::to($user->email)->send(new RemindMail($user->id, $user->first_name, $user->last_name, $nextReminderDate));
                 }
             }
-        })->daily();
+        })->everyMinute();
 
     }
 

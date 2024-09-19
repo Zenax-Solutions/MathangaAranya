@@ -28,6 +28,24 @@ class ContributionFormPayment extends Component
         $this->id = $id;
         $this->date = $date;
 
+        $community = Community::find($this->id);
+
+        if ($community) {
+            if($community->date->isPast())
+            {
+                $this->alert('warning', 'You have missed the deadline for this contribution!', [
+                    'position' => 'center'
+                ]);
+            }
+            else
+            {
+                $this->alert('success', 'You have not missed the deadline for this contribution!', [
+                    'position' => 'center'
+                ]);
+            }
+        
+        }
+
     }
 
     public function render()
@@ -38,45 +56,47 @@ class ContributionFormPayment extends Component
 
     public function submit()
     {
-
         $validated = $this->validate([
             'donationAmount' => 'required|numeric|min:0',
-            'paymentSlip' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+           // 'paymentSlip' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-
-
-
-        if ($validated)
-        {
-            $data = Community::find($this->id)->update([
-                'date' => $this->date,
-                'amount' => $this->donationAmount,
-                'slip' => $this->paymentSlip->store('public'),
-            ]);
-
-            // Clear form fields after submission
-          
-            if($data)
-            {
+    
+        if ($validated) {
+            $community = Community::find($this->id);
+    
+            if ($community) {
+                // Determine the new date based on the user type
+                $currentDate =  $community->date;
+                $reminderFrequency = $community->type;
                 
+                if ($reminderFrequency === 'monthly') {
+                    $nextReminderDate = $currentDate->addMonth();
+                } elseif ($reminderFrequency === 'yearly') {
+                    $nextReminderDate = $currentDate->addYear();
+                } else {
+                    $nextReminderDate = $currentDate;
+                }
+    
+                $community->update([
+                    'date' => $nextReminderDate, // Update the date based on the user type
+                    'amount' => $this->donationAmount,
+                    'slip' => '',
+                ]);
+    
+                // Clear form fields after submission
+                $this->reset(); // Optionally reset form fields
+    
                 $this->alert('success', 'Form submitted successfully.', [
                     'position' => 'center'
                 ]);
-
-                //Mail::to($this->email)->send(new ThankyouMail($validated));
-
+    
                 return redirect('/thank-you')->with('message', 'done');
             }
-        }  
-     
-        else
-        {
-            $this->alert('warning', 'Please fill all the fields !', [
+        } else {
+            $this->alert('warning', 'Please fill all the fields!', [
                 'position' => 'center'
             ]);
-
         }
-
     }
 
 }

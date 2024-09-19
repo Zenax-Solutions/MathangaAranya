@@ -52,6 +52,10 @@ class Kernel extends ConsoleKernel
 
                 if ($nextReminderDate->format('Y-m-d') == Carbon::now()->addDays(3)->toDateString()) {
 
+                    $user->update([
+                        'amount' => 0,
+                    ]);
+
                     Mail::to($user->email)->send(new RemindMail($user->id, $user->first_name, $user->last_name, $nextReminderDate));
                 }
             }

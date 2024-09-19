@@ -37,6 +37,10 @@ class ContributionFormPayment extends Component
                     'position' => 'center'
                 ]);
             }
+            elseif($community->amount > 0)
+            {
+                redirect()->to('/');
+            }
             else
             {
                 $this->alert('info', 'You have not missed the deadline for this contribution!', [

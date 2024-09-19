@@ -157,6 +157,11 @@ class PageController extends Controller
 
         $user = Community::find($id);
 
+        if($user == null)
+        {
+            return redirect('/');
+        }
+
 
         if($user->date <= Carbon::now())
         {

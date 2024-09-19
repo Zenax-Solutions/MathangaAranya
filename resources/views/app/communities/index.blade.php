@@ -105,7 +105,7 @@
                                 <td class="px-4 py-3 text-left">
                                     {{ number_format($community->amount) ?? '-' }}
                                 </td>
-                                <td class="px-4 py-3 text-left">
+                                {{--<td class="px-4 py-3 text-left">
                                     @if ($community->slip)
                                     <a
                                         href="{{ \Storage::url($community->slip) }}"

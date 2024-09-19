@@ -18,17 +18,24 @@
                             @error('donationAmount') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
     
-                        <div class="col-lg-6">
+                        <!-- <div class="col-lg-6">
                             <h5>Upload Payment Slip</h5>
                             <div class="input-group">
                                 <input wire:model="paymentSlip" type="file" class="form-control-file" />
                             </div>
                             @error('paymentSlip') <span class="text-danger">{{ $message }}</span> @enderror
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
     
+            <!-- Checkbox for Payment Deposit Verification -->
+            <div class="col-12">
+                <div class="form-group">
+                    <input required type="checkbox" id="paymentVerified">
+                    <label for="paymentVerified">I confirm that the payment has been deposited to the bank</label>
+                </div>
+            </div>
 
     
             <div wire:loading.remove class="col-lg-12">

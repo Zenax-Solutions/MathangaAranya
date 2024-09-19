@@ -22,7 +22,7 @@ class CommunityController extends Controller
         $search = $request->get('search', '');
 
         $communities = Community::search($search)
-            ->orderBy('date', 'desc')
+            ->orderByRaw('YEAR(date) DESC, MONTH(date) DESC, DAY(date) DESC')
             ->paginate(10)
             ->withQueryString();
 
@@ -81,12 +81,13 @@ class CommunityController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(CommunityUpdateRequest $request, Community $community): RedirectResponse {
+    public function update(CommunityUpdateRequest $request, Community $community): RedirectResponse
+    {
 
         $this->authorize('update', $community);
 
         $validated = $request->validated();
-        
+
         if ($request->hasFile('slip')) {
             if ($community->slip) {
                 Storage::delete($community->slip);

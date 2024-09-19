@@ -22,7 +22,7 @@ class CommunityController extends Controller
         $search = $request->get('search', '');
 
         $communities = Community::search($search)
-            ->orderByRaw('YEAR(date) DESC, MONTH(date) DESC, DAY(date) DESC')
+            ->orderByRaw("strftime('%Y', date) DESC, strftime('%m', date) DESC, strftime('%d', date) DESC")
             ->paginate(10)
             ->withQueryString();
 

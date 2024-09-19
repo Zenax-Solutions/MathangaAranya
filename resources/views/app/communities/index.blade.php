@@ -56,7 +56,7 @@
                                 </th>
 
                                 <th class="px-4 py-3 text-left">
-                                    @lang('crud.communities.inputs.date')
+                                    Remind Date
                                 </th>
                                 <th class="px-4 py-3 text-left">
                                     @lang('crud.communities.inputs.type')

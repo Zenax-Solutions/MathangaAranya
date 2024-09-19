@@ -22,7 +22,7 @@ class CommunityController extends Controller
         $search = $request->get('search', '');
 
         $communities = Community::search($search)
-        ->orderByRaw("(CASE WHEN date >= CURDATE() THEN 0 ELSE 1 END), date ASC") 
+        ->orderByRaw("(CASE WHEN date >= date('now') THEN 0 ELSE 1 END), date ASC") 
         ->paginate(10)
         ->withQueryString();
 

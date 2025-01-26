@@ -5,63 +5,75 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 
 
-  <!-- partial:partia/__subheader.html -->
-  <div class="sigma_subheader dark-overlay " style="background-image: url({{asset('assets/images/home/banner_3.jpg')}})">
+<!-- partial:partia/__subheader.html -->
+<div class="sigma_subheader dark-overlay " style="background-image: url({{asset('assets/images/home/banner_3.jpg')}})">
 
-    <div class="container">
-        
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-      <div class="sigma_subheader-inner">
-        <div class="sigma_subheader-text">
-          <h1>Photo Gallery</h1>
-        </div>
-      
+  <div class="container">
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div class="sigma_subheader-inner">
+      <div class="sigma_subheader-text">
+        <h1>Photo Gallery</h1>
       </div>
-    </div>
 
+    </div>
   </div>
-  <!-- partial -->
+
+</div>
+<!-- partial -->
 
 <div class="container">
-   
-    <br>
-    <br>
-    <div class="row">
 
-        @forelse ($gallery as $data)
-        <div class="col-md-4 mb-4">
-            <a href="{{\Storage::url($data->image)}}" data-lightbox="gallery">
-                <img style="height: 380px; width: 380px; object-fit: cover;" src="{{\Storage::url($data->image)}}" alt="Image 1" class="img-fluid rounded">
-            </a>
-        </div>
+  <style>
+    .lb-caption {
+      position: absolute;
+      font-size: 30px !important;
+      top: 33px;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      text-align: center !important;
+    }
+  </style>
 
-        @empty
-        <div style="display: flex; justify-content:center">
-            
-            <h2 style="text-align: center;">No Images in Gallery<br>(ගැලරියේ පින්තූර නැත)</h2>
-           
-        </div>
-        <div class="section-button d-flex align-items-center" style="justify-content: center">
+  <br>
+  <br>
+  <div class="row">
 
-            <a href="/" class="ms-3 sigma_btn-custom light text-white" style="background-color: #1c1c1c;">Return Back to Home <iclass="far fa-arrow-right"></i> </a>
-        </div>
-        @endforelse
-
-       
-    
-    </div>
-    <br>
-
-    <div>
-        {{ $gallery->links() }}
+    @forelse ($gallery as $data)
+    <div class="col-md-4 mb-4">
+      <a href="{{\Storage::url($data->image)}}" data-lightbox="gallery" data-title="{{$data->title ?? '-'}}">
+        <img style="height: 380px; width: 380px; object-fit: cover;" src="{{\Storage::url($data->image)}}" class="img-fluid rounded">
+      </a>
     </div>
 
-    <br>
-    <br>
+    @empty
+    <div style="display: flex; justify-content:center">
+
+      <h2 style="text-align: center;">No Images in Gallery<br>(ගැලරියේ පින්තූර නැත)</h2>
+
+    </div>
+    <div class="section-button d-flex align-items-center" style="justify-content: center">
+
+      <a href="/" class="ms-3 sigma_btn-custom light text-white" style="background-color: #1c1c1c;">Return Back to Home <iclass="far fa-arrow-right"></i> </a>
+    </div>
+    @endforelse
+
+
+
+  </div>
+  <br>
+
+  <div>
+    {{ $gallery->links() }}
+  </div>
+
+  <br>
+  <br>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

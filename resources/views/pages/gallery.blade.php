@@ -31,6 +31,7 @@
   <style>
     .lb-caption {
       position: absolute;
+      color: #ff5d5d !important;
       font-size: 30px !important;
       top: 33px;
       left: 0 !important;

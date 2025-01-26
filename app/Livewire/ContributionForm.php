@@ -22,6 +22,7 @@ class ContributionForm extends Component
     public $frequency = '';
     public $selectedDate = '';
     public $message = '';
+    public $title = '';
     public $firstName = '';
     public $lastName = '';
     public $country = '';
@@ -33,28 +34,26 @@ class ContributionForm extends Component
 
     public function render()
     {
-       
+
         $records = Community::all();
 
         $groupedRecords = [];
 
-        foreach($records as $record)
-        {
+        foreach ($records as $record) {
             $date = $record->date->format('Y-m-d'); // Assuming date_field is a DateTime instance
             $groupedRecords[$date][] = $record;
-
         }
 
         $filteredRecords = array_filter($groupedRecords, function ($records) {
             return count($records) === 2;
         });
-        
+
         $extractedData = [];
 
         foreach ($filteredRecords as $date => $records) {
-          
-                $extractedData[] = $date; // Convert each record to an array
-        
+
+            $extractedData[] = $date; // Convert each record to an array
+
         }
 
         $this->disableDate =  $extractedData;
@@ -73,6 +72,7 @@ class ContributionForm extends Component
             'frequency' => 'required|in:monthly,yearly',
             'selectedDate' => 'required|date',
             'message' => 'required|string',
+            'title' => 'required|string',
             'firstName' => 'required|string',
             'lastName' => 'required|string',
             'country' => 'required|string',
@@ -85,57 +85,47 @@ class ContributionForm extends Component
 
         if ($validated) {
 
-        $matchDate = Community::where('date', Carbon::createFromFormat('Y-m-d', $this->selectedDate)->startOfDay())->count();
-        
-        if($matchDate < 2)
-        {
-            $data = Community::create([
+            $matchDate = Community::where('date', Carbon::createFromFormat('Y-m-d', $this->selectedDate)->startOfDay())->count();
 
-                'first_name' => $this->firstName,
-                'last_name' => $this->lastName,
-                'email' => $this->email,
-                'address' => $this->address,
-                'phone_number' => $this->phoneNumber,
-                'country' => $this->country,
-                'date' => $this->selectedDate,
-                //'amount' => $this->donationAmount,
-                'type' => $this->frequency,
-                'description' => $this->message,
-                //'slip' => $this->paymentSlip->store('public'),
-            ]);
+            if ($matchDate < 2) {
+                $data = Community::create([
 
-
-            // Clear form fields after submission
-          
-            if($data)
-            {
-                
-                $this->alert('success', 'Form submitted successfully.', [
-                    'position' => 'center'
+                    'honorifics' => $this->title,
+                    'first_name' => $this->firstName,
+                    'last_name' => $this->lastName,
+                    'email' => $this->email,
+                    'address' => $this->address,
+                    'phone_number' => $this->phoneNumber,
+                    'country' => $this->country,
+                    'date' => $this->selectedDate,
+                    //'amount' => $this->donationAmount,
+                    'type' => $this->frequency,
+                    'description' => $this->message,
+                    //'slip' => $this->paymentSlip->store('public'),
                 ]);
 
-                Mail::to($this->email)->send(new ThankyouMail($validated));
 
-                return redirect('/thank-you')->with('message', 'done');
+                // Clear form fields after submission
+
+                if ($data) {
+
+                    $this->alert('success', 'Form submitted successfully.', [
+                        'position' => 'center'
+                    ]);
+
+                    Mail::to($this->email)->send(new ThankyouMail($validated));
+
+                    return redirect('/thank-you')->with('message', 'done');
+                }
+            } else {
+                $this->alert('info', 'Please select the different date !', [
+                    'position' => 'center'
+                ]);
             }
-        }
-        else
-        {
-            $this->alert('info', 'Please select the different date !', [
-                'position' => 'center'
-            ]);
-        }
-         
-           
-        }
-        else
-        {
+        } else {
             $this->alert('warning', 'Please fill all the fields !', [
                 'position' => 'center'
             ]);
-
         }
-
     }
-
 }

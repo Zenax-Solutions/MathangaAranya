@@ -23,6 +23,9 @@ class Community extends Model
         'type',
         'description',
         'slip',
+        'honorifics',
+        'note'
+
     ];
 
     protected $searchableFields = ['*'];

@@ -1,20 +1,22 @@
 @props([
-    'name',
-    'label',
+'name',
+'rows' => 3,
+'label',
+'readonly' => false,
 ])
 
 @if($label ?? null)
-    @include('components.inputs.partials.label')
+@include('components.inputs.partials.label')
 @endif
 
-<textarea 
-    name="{{ $name }}" 
-    rows="3"
+<textarea
+    name="{{ $name }}"
+    rows="{{ $rows }}"
+    {{ $readonly ? 'readonly' : '' }}
     {{ ($required ?? false) ? 'required' : '' }}
     {{ $attributes->merge(['class' => 'block appearance-none w-full py-1 px-2 text-base leading-normal text-gray-800 border border-gray-200 rounded']) }}
-    autocomplete="off"
->{{$slot}}</textarea>
+    autocomplete="off">{{$slot}}</textarea>
 
 @error($name)
-    @include('components.inputs.partials.error')
+@include('components.inputs.partials.error')
 @enderror

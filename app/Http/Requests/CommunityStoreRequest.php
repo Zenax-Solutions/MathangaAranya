@@ -24,11 +24,13 @@ class CommunityStoreRequest extends FormRequest
             'last_name' => ['required', 'string'],
             'email' => ['required', 'email'],
             'address' => ['required', 'string'],
-            'phone_number' =>['required', 'string'],
+            'phone_number' => ['required', 'string'],
             'date' => ['required', 'date'],
             'type' => ['required', 'string'],
             'description' => ['required', 'string'],
             'slip' => ['file', 'nullable'],
+            'note' => ['string', 'nullable'],
+            'honorifics' => ['string', 'nullable'],
         ];
     }
 }

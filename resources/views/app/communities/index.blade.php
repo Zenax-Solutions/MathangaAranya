@@ -40,6 +40,9 @@
                         <thead class="text-gray-700">
                             <tr>
                                 <th class="px-4 py-3 text-left">
+                                    Honorifics
+                                </th>
+                                <th class="px-4 py-3 text-left">
                                     @lang('crud.communities.inputs.first_name')
                                 </th>
                                 <th class="px-4 py-3 text-left">
@@ -67,6 +70,9 @@
                                 <th class="px-4 py-3 text-left">
                                     Amount
                                 </th>
+                                <th class="px-4 py-3 text-left">
+                                    Note (පුණ්‍ය අනුමෝදනාව)
+                                </th>
                                 {{--<th class="px-4 py-3 text-left">
                                     @lang('crud.communities.inputs.slip')
                                 </th> --}}
@@ -76,6 +82,9 @@
                         <tbody class="text-gray-600">
                             @forelse($communities as $community)
                             <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-left">
+                                    {{ $community->honorifics ?? '-' }}
+                                </td>
                                 <td class="px-4 py-3 text-left">
                                     {{ $community->first_name ?? '-' }}
                                 </td>
@@ -105,13 +114,19 @@
                                 <td class="px-4 py-3 text-left">
                                     {{ number_format($community->amount) ?? '-' }}
                                 </td>
+                                <td class="px-4 py-3 text-left">
+                                    <x-inputs.textarea readonly="true" rows="10" name="note">
+                                        {{ $community->note ?? '-' }}
+                                    </x-inputs.textarea>
+
+                                </td>
                                 {{--<td class="px-4 py-3 text-left">
                                     @if ($community->slip)
                                     <a
                                         href="{{ \Storage::url($community->slip) }}"
-                                        target="blank"><i
-                                            class="mr-1 icon ion-md-download"></i>&nbsp;Download</a>
-                                    @else - @endif
+                                target="blank"><i
+                                    class="mr-1 icon ion-md-download"></i>&nbsp;Download</a>
+                                @else - @endif
                                 </td> --}}
                                 <td class="px-4 py-3 text-center" style="width: 134px;">
                                     <div role="group" aria-label="Row Actions"

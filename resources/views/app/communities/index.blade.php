@@ -70,9 +70,6 @@
                                 <th class="px-4 py-3 text-left">
                                     Amount
                                 </th>
-                                <th class="px-4 py-3 text-left">
-                                    Note (පුණ්‍ය අනුමෝදනාව)
-                                </th>
                                 {{--<th class="px-4 py-3 text-left">
                                     @lang('crud.communities.inputs.slip')
                                 </th> --}}
@@ -113,12 +110,6 @@
                                 </td> --}}
                                 <td class="px-4 py-3 text-left">
                                     {{ number_format($community->amount) ?? '-' }}
-                                </td>
-                                <td class="px-4 py-3 text-left">
-                                    <x-inputs.textarea readonly="true" rows="10" name="note">
-                                        {{ $community->note ?? '-' }}
-                                    </x-inputs.textarea>
-
                                 </td>
                                 {{--<td class="px-4 py-3 text-left">
                                     @if ($community->slip)

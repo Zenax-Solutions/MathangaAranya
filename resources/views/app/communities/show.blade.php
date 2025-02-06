@@ -9,9 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <x-partials.card>
                 <x-slot name="title">
-                    <a href="{{ route('communities.index') }}" class="mr-4"
-                        ><i class="mr-1 icon ion-md-arrow-back"></i
-                    ></a>
+                    <a href="{{ route('communities.index') }}" class="mr-4"><i class="mr-1 icon ion-md-arrow-back"></i></a>
                 </x-slot>
 
                 <div class="mt-4 px-4">
@@ -71,6 +69,12 @@
                     </div>
                     <div class="mb-4">
                         <h5 class="font-medium text-gray-700">
+                            Note (පුණ්‍ය අනුමෝදනාව)
+                        </h5>
+                        <span>{{ $community->note ?? '-' }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-medium text-gray-700">
                             Amount
                         </h5>
                         <span>{{ number_format($community->amount) ?? '-' }}</span>
@@ -82,10 +86,7 @@
                         @if($community->slip)
                         <a
                             href="{{ \Storage::url($community->slip) }}"
-                            target="blank"
-                            ><i class="mr-1 icon ion-md-download"></i
-                            >&nbsp;Download</a
-                        >
+                            target="blank"><i class="mr-1 icon ion-md-download"></i>&nbsp;Download</a>
                         @else - @endif
                     </div>
                 </div>

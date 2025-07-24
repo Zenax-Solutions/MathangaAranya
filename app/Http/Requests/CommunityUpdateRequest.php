@@ -31,6 +31,12 @@ class CommunityUpdateRequest extends FormRequest
             'slip' => ['file', 'nullable'],
             'note' => ['string', 'nullable'],
             'honorifics' => ['string', 'nullable'],
+            // Admin manual adjustment fields
+            'next_reminder_date' => ['nullable', 'date'],
+            'payment_completed' => ['nullable', 'boolean'],
+            'amount' => ['nullable', 'numeric', 'min:0'],
+            'payment_date' => ['nullable', 'date'],
+            'reminder_notes' => ['nullable', 'string'],
         ];
     }
 }

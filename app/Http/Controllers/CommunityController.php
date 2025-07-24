@@ -20,14 +20,72 @@ class CommunityController extends Controller
         $this->authorize('view-any', Community::class);
 
         $search = $request->get('search', '');
+        $paymentStatus = $request->get('payment_status', '');
+        $frequency = $request->get('frequency', '');
+        $sort = $request->get('sort', 'reminder_asc');
 
-        $communities = Community::search($search)
-        ->orderByRaw("(CASE WHEN date >= date('now') THEN 0 ELSE 1 END), date ASC") 
-        ->paginate(10)
-        ->withQueryString();
+        $query = Community::query();
 
+        // Search functionality
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%");
+            });
+        }
 
-        return view('app.communities.index', compact('communities', 'search'));
+        // Payment status filter
+        if ($paymentStatus === 'completed') {
+            $query->where('payment_completed', true);
+        } elseif ($paymentStatus === 'pending') {
+            $query->where('payment_completed', false)
+                ->where(function ($q) {
+                    $q->whereNull('next_reminder_date')
+                        ->orWhere('next_reminder_date', '>=', now());
+                });
+        } elseif ($paymentStatus === 'overdue') {
+            $query->where('payment_completed', false)
+                ->where('next_reminder_date', '<', now());
+        }
+
+        // Frequency filter
+        if ($frequency) {
+            $query->where('type', $frequency);
+        }
+
+        // Sorting
+        switch ($sort) {
+            case 'reminder_asc':
+                // Priority sort: overdue first, then due soon, then future dates
+                $query->orderByRaw("
+                    CASE 
+                        WHEN payment_completed = 1 THEN 3
+                        WHEN next_reminder_date IS NULL THEN 4
+                        WHEN next_reminder_date < ? THEN 1
+                        WHEN next_reminder_date <= ? THEN 2
+                        ELSE 3
+                    END, 
+                    next_reminder_date ASC
+                ", [now()->toDateString(), now()->addDays(3)->toDateString()]);
+                break;
+            case 'reminder_desc':
+                $query->orderBy('next_reminder_date', 'desc');
+                break;
+            case 'name_asc':
+                $query->orderBy('first_name', 'asc')->orderBy('last_name', 'asc');
+                break;
+            case 'created_desc':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('next_reminder_date', 'asc');
+        }
+
+        $communities = $query->paginate(15)->withQueryString();
+
+        return view('app.communities.index', compact('communities', 'search', 'paymentStatus', 'frequency', 'sort'));
     }
 
     /**
@@ -82,12 +140,17 @@ class CommunityController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(CommunityUpdateRequest $request, Community $community): RedirectResponse {
+    public function update(CommunityUpdateRequest $request, Community $community): RedirectResponse
+    {
 
         $this->authorize('update', $community);
 
         $validated = $request->validated();
-        
+
+        // Track manual adjustments for admin logging
+        $manualAdjustments = [];
+        $originalValues = $community->only(['next_reminder_date', 'payment_completed', 'amount', 'payment_date']);
+
         if ($request->hasFile('slip')) {
             if ($community->slip) {
                 Storage::delete($community->slip);
@@ -96,11 +159,44 @@ class CommunityController extends Controller
             $validated['slip'] = $request->file('slip')->store('public');
         }
 
+        // Check for manual adjustments
+        if ($request->filled('next_reminder_date') && $request->next_reminder_date != $originalValues['next_reminder_date']) {
+            $manualAdjustments[] = "Next reminder date changed from {$originalValues['next_reminder_date']} to {$request->next_reminder_date}";
+        }
+
+        if ($request->filled('payment_completed') && (bool)$request->payment_completed != $originalValues['payment_completed']) {
+            $status = $request->payment_completed ? 'Completed' : 'Pending';
+            $oldStatus = $originalValues['payment_completed'] ? 'Completed' : 'Pending';
+            $manualAdjustments[] = "Payment status changed from {$oldStatus} to {$status}";
+        }
+
+        if ($request->filled('amount') && $request->amount != $originalValues['amount']) {
+            $manualAdjustments[] = "Amount changed from {$originalValues['amount']} to {$request->amount}";
+        }
+
+        if ($request->filled('payment_date') && $request->payment_date != $originalValues['payment_date']) {
+            $manualAdjustments[] = "Payment date changed from {$originalValues['payment_date']} to {$request->payment_date}";
+        }
+
+        // Add admin adjustment log to reminder_notes if changes were made
+        if (!empty($manualAdjustments)) {
+            $timestamp = now()->format('Y-m-d H:i:s');
+            $adminLog = "[ADMIN ADJUSTMENT - {$timestamp}]\n" . implode("\n", $manualAdjustments) . "\n\n";
+
+            $existingNotes = $validated['reminder_notes'] ?? '';
+            $validated['reminder_notes'] = $adminLog . $existingNotes;
+        }
+
         $community->update($validated);
+
+        $message = __('crud.common.saved');
+        if (!empty($manualAdjustments)) {
+            $message .= ' Manual adjustments have been logged.';
+        }
 
         return redirect()
             ->route('communities.edit', $community)
-            ->withSuccess(__('crud.common.saved'));
+            ->withSuccess($message);
     }
 
     /**

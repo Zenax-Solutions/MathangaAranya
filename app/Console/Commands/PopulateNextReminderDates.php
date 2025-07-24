@@ -50,11 +50,10 @@ class PopulateNextReminderDates extends Command
                 $this->line('');
 
                 $updated++;
-
             } catch (\Exception $e) {
                 $this->error("❌ Error updating ID {$community->id}: {$e->getMessage()}");
                 $errors++;
-                
+
                 Log::error('Failed to populate next_reminder_date', [
                     'community_id' => $community->id,
                     'error' => $e->getMessage()

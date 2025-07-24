@@ -33,15 +33,15 @@ class CheckDatabaseState extends Command
         if ($withoutNextReminder > 0) {
             $this->warn("⚠️  {$withoutNextReminder} records need next_reminder_date populated!");
             $this->line('');
-            
+
             // Show some examples
             $this->info("📋 Examples of records missing next_reminder_date:");
             $examples = Community::whereNull('next_reminder_date')->take(5)->get();
-            
+
             foreach ($examples as $example) {
                 $this->line("   ID: {$example->id} | {$example->first_name} {$example->last_name} | Date: {$example->date} | Type: {$example->type}");
             }
-            
+
             $this->line('');
             $this->info("💡 To fix this, run: php artisan migrate:populate-next-reminder-dates");
         }
@@ -50,8 +50,8 @@ class CheckDatabaseState extends Command
         $this->info('📈 BREAKDOWN BY FREQUENCY:');
         $frequencies = Community::selectRaw('type, COUNT(*) as count, 
                                            SUM(CASE WHEN next_reminder_date IS NOT NULL THEN 1 ELSE 0 END) as with_reminder')
-                                ->groupBy('type')
-                                ->get();
+            ->groupBy('type')
+            ->get();
 
         foreach ($frequencies as $freq) {
             $percentage = $freq->count > 0 ? round(($freq->with_reminder / $freq->count) * 100, 1) : 0;
@@ -66,14 +66,14 @@ class CheckDatabaseState extends Command
             Carbon::now()->toDateString(),
             Carbon::now()->addDays(7)->toDateString()
         ])->count();
-        
+
         $this->line("   {$upcomingReminders} users have reminders due in the next 7 days");
 
         // Show payment status
         $this->info('💳 PAYMENT STATUS:');
         $paid = Community::where('payment_completed', true)->count();
         $unpaid = Community::where('payment_completed', false)->count();
-        
+
         $this->line("   Paid: {$paid}");
         $this->line("   Unpaid: {$unpaid}");
 

@@ -90,7 +90,7 @@ class Kernel extends ConsoleKernel
                     'trace' => $e->getTraceAsString()
                 ]);
             }
-        })->everySecond();
+        })->daily();
     }
 
     /**

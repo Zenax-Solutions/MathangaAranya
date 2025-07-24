@@ -51,15 +51,49 @@
                     </div>
                     <div class="mb-4">
                         <h5 class="font-medium text-gray-700">
-                            @lang('crud.communities.inputs.date')
+                            Original Commitment Date
                         </h5>
-                        <span>{{ $community->date->format('Y-m-d') ?? '-' }}</span>
+                        <span>{{ $community->original_date ? $community->original_date->format('Y-m-d') : ($community->date ? $community->date->format('Y-m-d') : '-') }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-medium text-gray-700">
+                            Current Reminder Date
+                        </h5>
+                        <span class="px-2 py-1 text-sm font-semibold text-white {{ $community->current_reminder_date && $community->current_reminder_date <= now() ? 'bg-red-500' : 'bg-green-500' }} rounded">
+                            {{ $community->current_reminder_date ? $community->current_reminder_date->format('Y-m-d') : '-' }}
+                        </span>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-medium text-gray-700">
+                            Next Reminder Date
+                        </h5>
+                        <span>{{ $community->next_reminder_date ? $community->next_reminder_date->format('Y-m-d') : '-' }}</span>
                     </div>
                     <div class="mb-4">
                         <h5 class="font-medium text-gray-700">
                             @lang('crud.communities.inputs.type')
                         </h5>
                         <span>{{ $community->type ?? '-' }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-medium text-gray-700">
+                            Payment Status
+                        </h5>
+                        <span class="px-2 py-1 text-sm font-semibold text-white {{ $community->payment_completed ? 'bg-green-500' : 'bg-yellow-500' }} rounded">
+                            {{ $community->payment_completed ? 'Completed' : 'Pending' }}
+                        </span>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-medium text-gray-700">
+                            Payment Date
+                        </h5>
+                        <span>{{ $community->payment_date ? $community->payment_date->format('Y-m-d') : '-' }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-medium text-gray-700">
+                            Last Reminder Sent
+                        </h5>
+                        <span>{{ $community->last_reminder_sent ? $community->last_reminder_sent->format('Y-m-d') : '-' }}</span>
                     </div>
                     <div class="mb-4">
                         <h5 class="font-medium text-gray-700">
@@ -72,6 +106,12 @@
                             Note (පුණ්‍ය අනුමෝදනාව)
                         </h5>
                         <span>{{ $community->note ?? '-' }}</span>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="font-medium text-gray-700">
+                            Reminder Notes
+                        </h5>
+                        <span class="text-sm text-gray-600">{{ $community->reminder_notes ?? '-' }}</span>
                     </div>
                     <div class="mb-4">
                         <h5 class="font-medium text-gray-700">

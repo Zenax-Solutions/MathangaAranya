@@ -17,75 +17,72 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-
+        // Daily reminder job at midnight
         $schedule->call(function () {
             try {
                 $today = Carbon::now();
-                $reminderDate = $today->copy()->addDays(3); // Send reminder 3 days before the due date
 
-                Log::info('Running reminder scheduler', [
-                    'today' => $today->toDateString(),
-                    'reminder_trigger_date' => $reminderDate->toDateString()
+                Log::info('Running simplified reminder scheduler', [
+                    'today' => $today->toDateString()
                 ]);
 
-                $users = Community::all();
-                $emailsSent = 0;
+                // JOB 1: Send reminders 3 days before next_reminder_date
+                $reminderTriggerDate = $today->copy()->addDays(3);
 
-                foreach ($users as $user) {
-                    $originalDate = $user->date->copy(); // Use copy to avoid modifying the original
-                    $reminderFrequency = $user->type;
-                    $nextReminderDate = null;
+                $usersForReminder = Community::whereDate('next_reminder_date', $reminderTriggerDate->toDateString())
+                    ->where('payment_completed', false)
+                    ->get();
 
-                    // Calculate the next reminder date based on frequency
-                    if ($reminderFrequency === 'monthly') {
-                        // For monthly: find the next occurrence of the same day of month
-                        $nextReminderDate = $originalDate->copy();
+                Log::info('Reminder job', [
+                    'checking_date' => $reminderTriggerDate->toDateString(),
+                    'users_found' => $usersForReminder->count()
+                ]);
 
-                        while ($nextReminderDate->lte($today)) {
-                            $nextReminderDate->addMonth();
-                        }
-                    } elseif ($reminderFrequency === 'yearly') {
-                        // For yearly: find the next occurrence of the same month and day
-                        $nextReminderDate = Carbon::create(
-                            $today->year,
-                            $originalDate->month,
-                            $originalDate->day
-                        );
+                foreach ($usersForReminder as $user) {
+                    Log::info('Sending reminder email', [
+                        'user_email' => $user->email,
+                        'program_date' => $user->date,
+                        'next_reminder_date' => $user->next_reminder_date,
+                        'frequency' => $user->type
+                    ]);
 
-                        // If this year's date has already passed, move to next year
-                        if ($nextReminderDate->lte($today)) {
-                            $nextReminderDate->addYear();
-                        }
-                    }
-
-                    // Check if we should send a reminder (3 days before the due date)
-                    if ($nextReminderDate && $nextReminderDate->format('Y-m-d') == $reminderDate->format('Y-m-d')) {
-
-                        Log::info('Sending reminder email', [
-                            'user_email' => $user->email,
-                            'next_reminder_date' => $nextReminderDate->toDateString(),
-                            'frequency' => $reminderFrequency
-                        ]);
-
-                        // Reset amount to 0 as they mentioned in original code
-                        $user->update(['amount' => 0]);
-
-                        // Send the reminder email
-                        Mail::to($user->email)->send(new RemindMail(
-                            $user->id,
-                            $user->first_name,
-                            $user->last_name,
-                            $nextReminderDate
-                        ));
-
-                        $emailsSent++;
-                    }
+                    // Send reminder email with the next reminder date
+                    Mail::to($user->email)->send(new RemindMail(
+                        $user->id,
+                        $user->first_name,
+                        $user->last_name,
+                        Carbon::parse($user->next_reminder_date) // Use next_reminder_date for email links
+                    ));
                 }
 
-                Log::info('Reminder scheduler completed', [
-                    'total_users_checked' => $users->count(),
-                    'emails_sent' => $emailsSent
+                // JOB 2: Reset payment status for users whose next_reminder_date is today (reminder date arrived)
+                // This handles cases where users paid but need to be reset for next cycle tracking
+                $usersForReset = Community::whereDate('next_reminder_date', $today->toDateString())
+                    ->where('payment_completed', true)
+                    ->get();
+
+                Log::info('Payment status reset job', [
+                    'checking_date' => $today->toDateString(),
+                    'users_found' => $usersForReset->count()
+                ]);
+
+                foreach ($usersForReset as $user) {
+                    // Only reset payment status - cycle advancement already handled by payment form
+                    $user->update([
+                        'payment_completed' => false, // Reset for next cycle
+                        'amount' => 0 // Reset amount for next cycle
+                    ]);
+
+                    Log::info('Reset user payment status', [
+                        'user_email' => $user->email,
+                        'next_reminder_date' => $user->next_reminder_date,
+                        'payment_status' => 'reset to false'
+                    ]);
+                }
+
+                Log::info('Reminder scheduler completed successfully', [
+                    'reminders_sent' => $usersForReminder->count(),
+                    'payment_status_reset' => $usersForReset->count()
                 ]);
             } catch (\Exception $e) {
                 Log::error('Reminder scheduler failed', [
@@ -93,7 +90,24 @@ class Kernel extends ConsoleKernel
                     'trace' => $e->getTraceAsString()
                 ]);
             }
-        })->daily();
+        })->everySecond();
+    }
+
+    /**
+     * Calculate next date based on frequency
+     */
+    private function calculateNextDate(Carbon $currentDate, string $frequency): Carbon
+    {
+        switch (strtolower($frequency)) {
+            case 'weekly':
+                return $currentDate->copy()->addWeeks(1);
+            case 'monthly':
+                return $currentDate->copy()->addMonths(1);
+            case 'yearly':
+                return $currentDate->copy()->addYears(1);
+            default:
+                return $currentDate->copy()->addMonths(1); // Default to monthly
+        }
     }
 
     /**

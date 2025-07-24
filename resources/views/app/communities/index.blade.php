@@ -57,16 +57,18 @@
                                 <th class="px-4 py-3 text-left">
                                     Phone Number
                                 </th>
-
                                 <th class="px-4 py-3 text-left">
-                                    Remind Date
+                                    Original Date
+                                </th>
+                                <th class="px-4 py-3 text-left">
+                                    Next Reminder
                                 </th>
                                 <th class="px-4 py-3 text-left">
                                     @lang('crud.communities.inputs.type')
                                 </th>
-                                {{-- <th class="px-4 py-3 text-left">
-                                    @lang('crud.communities.inputs.description')
-                                </th> --}}
+                                <th class="px-4 py-3 text-left">
+                                    Payment Status
+                                </th>
                                 <th class="px-4 py-3 text-left">
                                     Amount
                                 </th>
@@ -100,14 +102,19 @@
                                         style="color: rgb(78, 221, 42)">{{ $community->phone_number ?? '-' }}</a>
                                 </td>
                                 <td class="px-4 py-3 text-left">
-                                    {{ $community->date->format('Y-m-d') ?? '-' }}
+                                    {{ $community->original_date ? $community->original_date->format('Y-m-d') : ($community->date ? $community->date->format('Y-m-d') : '-') }}
+                                </td>
+                                <td class="px-4 py-3 text-left">
+                                    {{ $community->next_reminder_date ? $community->next_reminder_date->format('Y-m-d') : '-' }}
                                 </td>
                                 <td class="px-4 py-3 text-left">
                                     {{ $community->type ?? '-' }}
                                 </td>
-                                {{-- <td class="px-4 py-3 text-left">
-                                    {{ $community->description ?? '-' }}
-                                </td> --}}
+                                <td class="px-4 py-3 text-left">
+                                    <span class="px-2 py-1 text-xs font-semibold text-black {{ $community->payment_completed ? 'bg-green-500' : 'bg-yellow-500' }} rounded">
+                                        {{ $community->payment_completed ? 'Completed' : 'Pending' }}
+                                    </span>
+                                </td>
                                 <td class="px-4 py-3 text-left">
                                     {{ number_format($community->amount) ?? '-' }}
                                 </td>
@@ -149,7 +156,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="9">
+                                <td colspan="11">
                                     @lang('crud.common.no_items_found')
                                 </td>
                             </tr>
@@ -157,7 +164,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="9">
+                                <td colspan="11">
                                     <div class="px-4 mt-10">
                                         {!! $communities->render() !!}
                                     </div>

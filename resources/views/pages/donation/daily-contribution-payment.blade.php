@@ -30,6 +30,20 @@
             </h4>
         </div>
 
+        {{-- Payment Timing Message --}}
+        @if(isset($message) && $message)
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8">
+                <div class="alert alert-{{ $messageType }} alert-dismissible fade show" role="alert">
+                    <i class="fa {{ $messageType == 'success' ? 'fa-check-circle' : ($messageType == 'warning' ? 'fa-exclamation-triangle' : 'fa-times-circle') }}"></i>
+                    <strong>{{ $messageType == 'success' ? 'Great!' : ($messageType == 'warning' ? 'Early Payment:' : 'Late Payment:') }}</strong>
+                    {{ $message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="row">
             <div class="col-lg-6">
 

@@ -38,6 +38,31 @@ return [
         ],
     ],
 
+    'alms' => [
+        'name'        => 'දෛනික දාන වාරය',
+        'index_title' => 'දෛනික දාන වාරය (Daily Alms)',
+        'new_title'   => 'New Alms Registration',
+        'create_title' => 'Create Alms Registration',
+        'edit_title'  => 'Edit Alms Registration',
+        'show_title'  => 'View Alms Registration',
+        'inputs' => [
+            'honorifics'         => 'Title',
+            'first_name'         => 'First Name',
+            'last_name'          => 'Last Name',
+            'email'              => 'Email',
+            'phone_number'       => 'Phone Number',
+            'whatsapp_number'    => 'WhatsApp Number',
+            'country'            => 'Country',
+            'address'            => 'Address',
+            'date'               => 'Dana Date',
+            'type'               => 'Frequency',
+            'meal_type'          => 'Meal Type',
+            'next_reminder_date' => 'Next Reminder Date',
+            'last_reminder_sent' => 'Last Reminder Sent',
+            'description'        => 'Description',
+        ],
+    ],
+
     'communities' => [
         'name' => 'දෛනික දායකත්වය',
         'index_title' => 'දෛනික දායකත්වය',

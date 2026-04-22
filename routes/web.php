@@ -8,6 +8,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\AlmsController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Artisan;
@@ -36,14 +37,17 @@ Route::get('/events/{id}', [PageController::class, 'event_page']);
 Route::get('/about-us', [PageController::class, 'about']);
 
 Route::get('/thank-you', function () {
-
-
     if (session('message') == null) {
         return redirect('/');
     }
-
-
     return view('pages.thank-you');
+});
+
+Route::get('/thank-you-alms', function () {
+    if (session('message') == null) {
+        return redirect('/');
+    }
+    return view('pages.thank-you-alms');
 });
 
 // Donation Pages
@@ -72,7 +76,6 @@ Route::get('/cache', function () {
     //Artisan::call('storage:link');
 
     return "cache clear and storage:link done";
-
 });
 
 
@@ -87,6 +90,7 @@ Route::prefix('/admin')
     ->middleware(['auth:sanctum', 'verified'])
     ->group(function () {
         Route::resource('calendars', CalendarController::class);
+        Route::resource('alms', AlmsController::class);
         Route::resource('communities', CommunityController::class);
         Route::resource('donations', DonationController::class);
         Route::resource('events', EventController::class);

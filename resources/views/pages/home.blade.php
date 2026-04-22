@@ -198,7 +198,7 @@
             </div>
 
             <div class="col-lg-4 col-md-6" id="Daily-alms">
-                <a href="https://wa.link/xbwh8r" target="_blank"
+                <a href="/donate/daily-alms"
                     class="sigma_service border text-center style-1 primary-bg">
                     <div class="sigma_service-thumb">
                         <img width="100" height="100"

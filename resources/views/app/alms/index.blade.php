@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                @lang('crud.communities.index_title')
+                @lang('crud.alms.index_title')
             </h2>
-            @can('create', App\Models\Community::class)
-            <a href="{{ route('communities.create') }}"
+            @can('create', App\Models\Alms::class)
+            <a href="{{ route('alms.create') }}"
                 class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition">
                 <i class="icon ion-md-add text-base"></i> New Registration
             </a>
@@ -33,18 +33,17 @@
                         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Frequency</label>
                         <select name="frequency" class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-300 outline-none">
                             <option value="">All</option>
-                            <option value="monthly" {{ ($frequency ?? '') == 'monthly'   ? 'selected' : '' }}>Monthly</option>
-                            <option value="yearly" {{ ($frequency ?? '') == 'yearly'    ? 'selected' : '' }}>Yearly</option>
+                            <option value="monthly" {{ ($frequency ?? '') == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                            <option value="yearly" {{ ($frequency ?? '') == 'yearly'  ? 'selected' : '' }}>Yearly</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Payment</label>
-                        <select name="payment_status" class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-300 outline-none">
-                            <option value="">All</option>
-                            <option value="pending" {{ ($paymentStatus ?? '') == 'pending'   ? 'selected' : '' }}>Pending</option>
-                            <option value="completed" {{ ($paymentStatus ?? '') == 'completed' ? 'selected' : '' }}>Completed</option>
-                            <option value="overdue" {{ ($paymentStatus ?? '') == 'overdue'   ? 'selected' : '' }}>Overdue</option>
+                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Meal</label>
+                        <select name="meal_type" class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-300 outline-none">
+                            <option value="">All Meals</option>
+                            <option value="breakfast" {{ ($mealType ?? '') == 'breakfast' ? 'selected' : '' }}>Breakfast (6am)</option>
+                            <option value="lunch" {{ ($mealType ?? '') == 'lunch'     ? 'selected' : '' }}>Lunch (10am)</option>
                         </select>
                     </div>
 
@@ -63,8 +62,8 @@
                             class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
                             <i class="icon ion-md-search"></i> Filter
                         </button>
-                        @if($search || $paymentStatus || $frequency || ($sort && $sort !== 'reminder_asc'))
-                        <a href="{{ route('communities.index') }}"
+                        @if($search || $frequency || $mealType || ($sort && $sort !== 'reminder_asc'))
+                        <a href="{{ route('alms.index') }}"
                             class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 border border-gray-200 px-3 py-2 rounded-lg transition">
                             <i class="icon ion-md-close"></i> Clear
                         </a>
@@ -79,9 +78,9 @@
                 {{-- Table header strip --}}
                 <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <p class="text-sm text-gray-500">
-                        <span class="font-semibold text-gray-800">{{ $communities->total() }}</span> records
-                        @if($communities->total() != $communities->count())
-                        · showing {{ $communities->firstItem() }}–{{ $communities->lastItem() }}
+                        <span class="font-semibold text-gray-800">{{ $alms->total() }}</span> records
+                        @if($alms->total() != $alms->count())
+                        · showing {{ $alms->firstItem() }}–{{ $alms->lastItem() }}
                         @endif
                     </p>
                     <div class="flex items-center gap-2 text-xs text-gray-400">
@@ -96,19 +95,18 @@
                             <tr class="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                                 <th class="px-5 py-3 text-left">Person</th>
                                 <th class="px-5 py-3 text-left">Contact</th>
-                                <th class="px-5 py-3 text-left">Country</th>
-                                <th class="px-5 py-3 text-left">Original Date</th>
+                                <th class="px-5 py-3 text-left">Dana Date</th>
                                 <th class="px-5 py-3 text-left">Next Reminder</th>
-                                <th class="px-5 py-3 text-left">Type</th>
-                                <th class="px-5 py-3 text-left">Payment</th>
+                                <th class="px-5 py-3 text-left">Frequency</th>
+                                <th class="px-5 py-3 text-left">Meal</th>
                                 <th class="px-5 py-3 text-center w-28">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
-                            @forelse($communities as $community)
+                            @forelse($alms as $alm)
                             @php
-                            $daysUntil = $community->next_reminder_date && !$community->payment_completed
-                            ? \Carbon\Carbon::today()->diffInDays($community->next_reminder_date, false)
+                            $daysUntil = $alm->next_reminder_date
+                            ? \Carbon\Carbon::today()->diffInDays($alm->next_reminder_date, false)
                             : null;
                             $rowBg = '';
                             if ($daysUntil !== null) {
@@ -118,9 +116,8 @@
                                 } else {
                                 $rowBg='hover:bg-gray-50' ;
                                 }
-                                $initials=strtoupper(substr($community->first_name ?? '?', 0, 1));
-                                $avatarColors = ['bg-blue-100 text-blue-700','bg-purple-100 text-purple-700','bg-emerald-100 text-emerald-700','bg-rose-100 text-rose-700','bg-amber-100 text-amber-700','bg-indigo-100 text-indigo-700'];
-                                $avatarColor = $avatarColors[crc32($community->first_name ?? '') % count($avatarColors)];
+                                $avatarColors=['bg-amber-100 text-amber-700','bg-orange-100 text-orange-700','bg-rose-100 text-rose-700','bg-pink-100 text-pink-700','bg-yellow-100 text-yellow-700','bg-red-100 text-red-700'];
+                                $avatarColor=$avatarColors[crc32($alm->first_name ?? '') % count($avatarColors)];
                                 @endphp
                                 <tr class="transition-colors {{ $rowBg }}">
 
@@ -128,14 +125,14 @@
                                     <td class="px-5 py-3.5">
                                         <div class="flex items-center gap-3">
                                             <div class="w-9 h-9 rounded-full {{ $avatarColor }} flex items-center justify-center font-bold text-sm shrink-0">
-                                                {{ $initials }}
+                                                {{ strtoupper(substr($alm->first_name ?? '?', 0, 1)) }}
                                             </div>
                                             <div>
                                                 <p class="font-medium text-gray-800 leading-tight">
-                                                    {{ trim(($community->honorifics ? $community->honorifics . ' ' : '') . $community->first_name . ' ' . $community->last_name) }}
+                                                    {{ trim(($alm->honorifics ? $alm->honorifics . ' ' : '') . $alm->first_name . ' ' . $alm->last_name) }}
                                                 </p>
                                                 <p class="text-xs text-gray-400 mt-0.5">
-                                                    Registered {{ $community->created_at->format('M d, Y') }}
+                                                    Registered {{ $alm->created_at->format('M d, Y') }}
                                                 </p>
                                             </div>
                                         </div>
@@ -143,40 +140,31 @@
 
                                     {{-- Contact --}}
                                     <td class="px-5 py-3.5">
-                                        <a href="mailto:{{ $community->email }}" class="text-indigo-600 hover:underline text-sm block leading-tight">
-                                            {{ $community->email ?? '-' }}
+                                        <a href="mailto:{{ $alm->email }}" class="text-indigo-600 hover:underline text-sm block leading-tight">
+                                            {{ $alm->email }}
                                         </a>
-                                        @if($community->phone_number)
-                                        <a href="https://wa.me/{{ preg_replace('/\D/', '', $community->phone_number) }}" target="_blank"
+                                        @if($alm->whatsapp_number)
+                                        <a href="https://wa.me/{{ preg_replace('/\D/', '', $alm->whatsapp_number) }}" target="_blank"
                                             class="inline-flex items-center gap-1 text-xs text-green-600 hover:underline mt-0.5">
                                             <i class="icon ion-logo-whatsapp"></i>
-                                            {{ $community->phone_number }}
+                                            {{ $alm->whatsapp_number }}
                                         </a>
+                                        @elseif($alm->phone_number)
+                                        <span class="text-xs text-gray-400 mt-0.5 block">{{ $alm->phone_number }}</span>
                                         @endif
                                     </td>
 
-                                    {{-- Country --}}
-                                    <td class="px-5 py-3.5">
-                                        <span class="text-sm text-gray-600">{{ $community->country ? ucwords(strtolower($community->country)) : '—' }}</span>
-                                    </td>
-
-                                    {{-- Original Date --}}
+                                    {{-- Dana Date --}}
                                     <td class="px-5 py-3.5">
                                         <span class="text-sm text-gray-600">
-                                            {{ $community->original_date
-                                            ? $community->original_date->format('M d, Y')
-                                            : ($community->date ? $community->date->format('M d, Y') : '—') }}
+                                            {{ $alm->date ? $alm->date->format('M d, Y') : '—' }}
                                         </span>
                                     </td>
 
                                     {{-- Next Reminder --}}
                                     <td class="px-5 py-3.5">
-                                        @if($community->payment_completed)
-                                        <span class="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">
-                                            <i class="icon ion-md-checkmark-circle"></i> Paid
-                                        </span>
-                                        @elseif($community->next_reminder_date)
-                                        <p class="text-sm font-medium text-gray-700">{{ $community->next_reminder_date->format('M d, Y') }}</p>
+                                        @if($alm->next_reminder_date)
+                                        <p class="text-sm font-medium text-gray-700">{{ $alm->next_reminder_date->format('M d, Y') }}</p>
                                         @if($daysUntil !== null)
                                         @if($daysUntil < 0)
                                             <span class="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold mt-1">
@@ -201,56 +189,55 @@
                                                 @endif
                                     </td>
 
-                                    {{-- Type --}}
+                                    {{-- Frequency --}}
                                     <td class="px-5 py-3.5">
-                                        @if($community->type === 'monthly')
+                                        @if($alm->type === 'monthly')
                                         <span class="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-medium">
                                             <i class="icon ion-md-sync"></i> Monthly
                                         </span>
-                                        @elseif($community->type === 'yearly')
+                                        @elseif($alm->type === 'yearly')
                                         <span class="inline-flex items-center gap-1 text-xs bg-purple-100 text-purple-700 px-2.5 py-1 rounded-full font-medium">
                                             <i class="icon ion-md-calendar"></i> Yearly
                                         </span>
                                         @else
-                                        <span class="text-gray-400 text-xs">{{ $community->type ?? '—' }}</span>
+                                        <span class="text-gray-400 text-xs">{{ ucfirst($alm->type ?? '—') }}</span>
                                         @endif
                                     </td>
 
-                                    {{-- Payment --}}
+                                    {{-- Meal --}}
                                     <td class="px-5 py-3.5">
-                                        @if($community->payment_completed)
-                                        <span class="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">
-                                            <i class="icon ion-md-checkmark"></i> Completed
+                                        @if($alm->meal_type === 'breakfast')
+                                        <span class="inline-flex items-center gap-1 text-xs bg-sky-100 text-sky-700 px-2.5 py-1 rounded-full font-medium">
+                                            <i class="icon ion-md-sunny"></i> Breakfast 6am
+                                        </span>
+                                        @elseif($alm->meal_type === 'lunch')
+                                        <span class="inline-flex items-center gap-1 text-xs bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full font-medium">
+                                            <i class="icon ion-md-restaurant"></i> Lunch 10am
                                         </span>
                                         @else
-                                        <span class="inline-flex items-center gap-1 text-xs {{ $daysUntil !== null && $daysUntil < 0 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800' }} px-2.5 py-1 rounded-full font-medium">
-                                            <i class="icon ion-md-time"></i> Pending
-                                        </span>
-                                        @endif
-                                        @if($community->amount)
-                                        <p class="text-xs text-gray-500 mt-1">Rs. {{ number_format($community->amount) }}</p>
+                                        <span class="text-gray-400 text-xs">—</span>
                                         @endif
                                     </td>
 
                                     {{-- Actions --}}
                                     <td class="px-5 py-3.5 text-center">
                                         <div class="inline-flex items-center gap-1">
-                                            @can('update', $community)
-                                            <a href="{{ route('communities.edit', $community) }}"
+                                            @can('update', $alm)
+                                            <a href="{{ route('alms.edit', $alm) }}"
                                                 title="Edit"
                                                 class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-gray-100 hover:bg-indigo-100 hover:text-indigo-600 text-gray-500 transition">
                                                 <i class="icon ion-md-create text-sm"></i>
                                             </a>
                                             @endcan
-                                            @can('view', $community)
-                                            <a href="{{ route('communities.show', $community) }}"
+                                            @can('view', $alm)
+                                            <a href="{{ route('alms.show', $alm) }}"
                                                 title="View"
                                                 class="w-8 h-8 inline-flex items-center justify-center rounded-lg bg-gray-100 hover:bg-blue-100 hover:text-blue-600 text-gray-500 transition">
                                                 <i class="icon ion-md-eye text-sm"></i>
                                             </a>
                                             @endcan
-                                            @can('delete', $community)
-                                            <form action="{{ route('communities.destroy', $community) }}" method="POST"
+                                            @can('delete', $alm)
+                                            <form action="{{ route('alms.destroy', $alm) }}" method="POST"
                                                 onsubmit="return confirm('{{ __('crud.common.are_you_sure') }}')">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" title="Delete"
@@ -265,11 +252,11 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="px-5 py-16 text-center">
+                                    <td colspan="7" class="px-5 py-16 text-center">
                                         <div class="flex flex-col items-center text-gray-400">
-                                            <i class="icon ion-md-people text-5xl mb-3"></i>
-                                            <p class="font-medium">@lang('crud.common.no_items_found')</p>
-                                            @if($search)
+                                            <i class="icon ion-md-restaurant text-5xl mb-3"></i>
+                                            <p class="font-medium">No alms registrations found.</p>
+                                            @if($search || $frequency || $mealType)
                                             <p class="text-sm mt-1">Try adjusting your search or filters.</p>
                                             @endif
                                         </div>
@@ -280,9 +267,9 @@
                     </table>
                 </div>
 
-                @if($communities->hasPages())
+                @if($alms->hasPages())
                 <div class="px-6 py-4 border-t border-gray-100 bg-gray-50">
-                    {{ $communities->withQueryString()->links() }}
+                    {{ $alms->withQueryString()->links() }}
                 </div>
                 @endif
 

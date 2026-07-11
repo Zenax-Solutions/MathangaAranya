@@ -100,7 +100,6 @@
                                 <th class="px-5 py-3 text-left">Original Date</th>
                                 <th class="px-5 py-3 text-left">Next Reminder</th>
                                 <th class="px-5 py-3 text-left">Type</th>
-                                <th class="px-5 py-3 text-left">Payment</th>
                                 <th class="px-5 py-3 text-center w-28">Actions</th>
                             </tr>
                         </thead>
@@ -171,7 +170,7 @@
 
                                     {{-- Next Reminder --}}
                                     <td class="px-5 py-3.5">
-                                        @if($community->payment_completed)
+                                        @if($community->payment_completed && $community->next_reminder_date && $community->next_reminder_date->isPast())
                                         <span class="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">
                                             <i class="icon ion-md-checkmark-circle"></i> Paid
                                         </span>
@@ -216,22 +215,6 @@
                                         @endif
                                     </td>
 
-                                    {{-- Payment --}}
-                                    <td class="px-5 py-3.5">
-                                        @if($community->payment_completed)
-                                        <span class="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">
-                                            <i class="icon ion-md-checkmark"></i> Completed
-                                        </span>
-                                        @else
-                                        <span class="inline-flex items-center gap-1 text-xs {{ $daysUntil !== null && $daysUntil < 0 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800' }} px-2.5 py-1 rounded-full font-medium">
-                                            <i class="icon ion-md-time"></i> Pending
-                                        </span>
-                                        @endif
-                                        @if($community->amount)
-                                        <p class="text-xs text-gray-500 mt-1">Rs. {{ number_format($community->amount) }}</p>
-                                        @endif
-                                    </td>
-
                                     {{-- Actions --}}
                                     <td class="px-5 py-3.5 text-center">
                                         <div class="inline-flex items-center gap-1">
@@ -265,7 +248,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="px-5 py-16 text-center">
+                                    <td colspan="7" class="px-5 py-16 text-center">
                                         <div class="flex flex-col items-center text-gray-400">
                                             <i class="icon ion-md-people text-5xl mb-3"></i>
                                             <p class="font-medium">@lang('crud.common.no_items_found')</p>
